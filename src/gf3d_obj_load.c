@@ -190,6 +190,7 @@ void gf3d_obj_get_counts_from_file(ObjData *obj, const char *mem,size_t fileSize
     p = mem;
     while(sscanf(p, "%s", buf) != EOF)
     {
+
         c = strchr(p,'\n');//go to the end of line
         p = c + 1;//and then the next line
         switch(buf[0])

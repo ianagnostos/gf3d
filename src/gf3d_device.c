@@ -7,7 +7,6 @@
 
 #include "gf3d_vqueues.h"
 #include "gf3d_validation.h"
-#include "gf3d_extensions.h"
 #include "gf3d_device.h"
 
 extern int __DEBUG;

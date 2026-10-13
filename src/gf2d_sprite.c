@@ -576,7 +576,7 @@ VkVertexInputAttributeDescription * gf2d_sprite_get_attribute_descriptions(Uint3
     gf2d_sprite.attributeDescriptions[0].location = 0;
     gf2d_sprite.attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
     gf2d_sprite.attributeDescriptions[0].offset = offsetof(SpriteVertex, vertex);
-    
+
     gf2d_sprite.attributeDescriptions[1].binding = 0;
     gf2d_sprite.attributeDescriptions[1].location = 1;
     gf2d_sprite.attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
