@@ -68,6 +68,7 @@ void model_init_system(Uint32 modelCount)
         slog("feault texture DOES not exist");
         return;
     }
+    slog("model system init");
     atexit(model_close);
     return;
 }

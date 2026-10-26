@@ -1,7 +1,6 @@
 #include "simple_logger.h"
 #include "gfc_matrix.h"
 #include "gf3d_entity.h"
-#include "gf3d_model.h"
 
 typedef struct
 {
@@ -56,21 +55,32 @@ void entity_init(Uint32 maxEnts)
 Entity* entity_new()
 {
 	int i;
+	if (!entity_manager.entityList)
+	{
+		slog("No enitity list");
+		return NULL;
+	}
+
 	for (i = 0; i < entity_manager.maxEnts; i++)
 	{
-		if (entity_manager.entityList[i]._inuse) continue;
-		entity_manager.entityList[i]._inuse = 1;
+		Entity* ent = &entity_manager.entityList[i];
+		if (ent->_inuse) continue;
+		memset(ent, 0, sizeof(Entity));
+		ent->_inuse = 1;
 		//any boilerplate code goes here
-		entity_manager.entityList[i].scale = gfc_vector3d(1, 1, 1);
-		entity_manager.entityList[i].color = GFC_COLOR_WHITE;
-		return &entity_manager.entityList[i];
+		ent->_inuse = 1;
+		ent->scale = gfc_vector3d(1, 1, 1);
+		ent->color = GFC_COLOR_WHITE;
+		return ent;
 	}
+	return NULL;
 }
 
 void entity_free(Entity* ent)
 {
 	if (!ent) return;
 	if (!ent->_inuse) return;
+	if (ent->free) ent->free(ent);
 	model_free(ent->model);
 	memset(ent, 0, sizeof(Entity));
 }
@@ -83,6 +93,7 @@ void entity_draw(Entity* self)
 		self->draw(self);
 		return;
 	}
+
 	gfc_matrix4_from_vectors(
 		self->mat,
 		self->position,

@@ -5,4 +5,9 @@
 
 Entity* player_spawn(GFC_Vector3D position);
 
+int player_update(Entity* self);
+
+void player_free(Entity* self);
+int player_think(Entity* self);
+
 #endif 

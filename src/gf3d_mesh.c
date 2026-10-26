@@ -43,6 +43,7 @@ void gf3d_mesh_init(Uint32 mesh_max)
     mesh_manager.device = gf3d_vgraphics_get_default_logical_device();
     if (!mesh_manager.meshList) return;
     mesh_manager.meshCount = mesh_max;
+    slog("mesh system initialized");
     atexit(gf3d_mesh_close);
 
 }

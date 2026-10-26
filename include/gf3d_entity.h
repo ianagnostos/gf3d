@@ -19,7 +19,9 @@ typedef struct Entity_S
 	int			(*draw)(struct Entity_S* self);
 	int			(*update)(struct Entity_S* self);
 
-	void* data;
+
+	void		(*free)(struct Entity_S* self);
+	void		*data; // USED FOR CUSTOM ENTITY DATA. iF SETM YOU MUST SPECIFY A FREE FUCNTION 
 
 }Entity;
 

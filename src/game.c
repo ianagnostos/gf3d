@@ -23,6 +23,7 @@
 
 #include "gf3d_entity.h";
 #include "player.h";
+#include "level.h"
 
 
 extern int __DEBUG;
@@ -46,6 +47,7 @@ int main(int argc,char *argv[])
     //Sprite* bg;
 
     Model* model; 
+    Level* level;
     GFC_Matrix4 mat; 
     GFC_Matrix4 *view; 
     //initializtion    
@@ -58,6 +60,7 @@ int main(int argc,char *argv[])
     gfc_action_init(1024);
     //gf3d init
     gf3d_vgraphics_init("config/setup.cfg");
+    gfc_sound_init_config("config/audio.cfg");
     gf2d_font_init("config/font.cfg");
     gf2d_actor_init(1000);
     entity_init(1000);
@@ -67,11 +70,9 @@ int main(int argc,char *argv[])
     slog_sync();
     //bg = gf2d_sprite_load_image("images/bg_flat.png");
     gf2d_mouse_load("actors/mouse.actor");
+    level = level_load("levels/level.json");
 
-    Entity *player = player_spawn(gfc_vector3d(0, 0, 0)); 
-    gfc_matrix4_identity(mat);
-    view = gf3d_vgraphics_get_view_matrix();
-    gfc_matrix4_view(*view, gfc_vector3d(0,-10,0), gfc_vector3d(0,0,0), gfc_vector3d(0,0,1));
+    Entity *player = player_spawn(gfc_vector3d(0, 0, 10)); 
 
     // main game loop    
     while(!_done)
@@ -87,6 +88,7 @@ int main(int argc,char *argv[])
         gf3d_vgraphics_render_start();
                 //3D draws
                 slog_sync();
+                level_draw(level);
                 entity_system_draw();
                 //2D draws
                 //gf2d_sprite_draw_image(bg,gfc_vector2d(0,0));
