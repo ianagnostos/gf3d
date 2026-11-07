@@ -151,10 +151,10 @@ void gf3d_vgraphics_init(const char *config)
     
     gfc_matrix4_perspective(
         gf3d_vgraphics.ubo.proj,
-        45 * GFC_DEGTORAD,
+        35 * GFC_DEGTORAD,
         resolution.x/resolution.y,
-        0.1f,
-        100000
+        1.0f,
+        2000
     );
     
     gf3d_vgraphics.ubo.proj[1][1] *= -1;

@@ -12,6 +12,9 @@ typedef struct Entity_S
 	GFC_Vector3D	scale;
 	GFC_Matrix4		mat;
 
+	GFC_Box			bounds;
+	Uint8			solid;
+
 	GFC_Vector3D	velocity;
 	GFC_Color		color;
 
@@ -46,6 +49,12 @@ void entity_system_think();
 * queue renders on all entities
 */
 void entity_system_draw();
+
+//cehck if two entityies collide
+int entity_collision_other(Entity* self, Entity* other);
+
+//check ig entity in bounding box
+int entity_move_check(Entity* self, GFC_Vector3D offset);
 
 
 #endif

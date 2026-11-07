@@ -8,7 +8,7 @@
 
 static Level* theLevel = NULL;
 
-/*
+/**
 Uint8 level_line_test(Level* level, GFC_Edge3D edge, GFC_Vector3D *contact)
 {
 	MeshPrimitive* prim;
@@ -23,7 +23,7 @@ Uint8 level_line_test(Level* level, GFC_Edge3D edge, GFC_Vector3D *contact)
 	c = gfc_list_count(level->terrain->mesh->primitives);
 	for (i = 0; i < c; i++)
 	{
-		prim = gfc_list_mth(level->terrain->mesh->primitves, i);
+		prim = gfc_list_nth(level->terrain->mesh->primitives, i);
 		if (!prim)
 		{
 			slog("prim is NULL");
@@ -34,13 +34,12 @@ Uint8 level_line_test(Level* level, GFC_Edge3D edge, GFC_Vector3D *contact)
 			slog("prim has no objData");
 			continue;
 		}
-		slog("terrain has %i faces", prim->objData->face_count);
-		for (j = 0; j < prim->objData->face_Count; j++)
+		for (j = 0; j < prim->objData->face_count; j++)
 		{
-			t.a = prim->objData-faceVertices[prim->objData->outFace->verts[0]].vertex;
-			t.b = prim->objData - faceVertices[prim->objData->outFace->verts[1]].vertex;
-			t.c = prim->objData - faceVertices[prim->objData->outFace->verts[2]].vertex;
-			if (gfc_triangle_edge_text(edge, t, &out))
+			t.a = prim->objData->faceVertices[prim->objData->outFace[j].verts[0]].vertex;
+			t.b = prim->objData->faceVertices[prim->objData->outFace[j].verts[1]].vertex;
+			t.c = prim->objData->faceVertices[prim->objData->outFace[j].verts[2]].vertex;
+			if (gfc_triangle_edge_test(edge, t, &out))
 			{
 				if (contact) *contact = out;
 				return 1;
@@ -48,9 +47,20 @@ Uint8 level_line_test(Level* level, GFC_Edge3D edge, GFC_Vector3D *contact)
 		}
 	}
 	return 0;
-}
-*/
+}*/
 
+Uint8 level_bounds_check(Level *level, GFC_Box aabb)
+{
+	if (!level) return 0;
+
+	if (aabb.x < level->bounds.x) return 1;
+	if (aabb.y < level->bounds.y) return 1;
+
+	if (aabb.x + aabb.w > level->bounds.x + level->bounds.w) return 1;
+	if(aabb.y + aabb.h > level->bounds.y + level->bounds.h) return 1;
+
+	return 0;
+}
 
 Level* level_new()
 {

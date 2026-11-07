@@ -144,12 +144,16 @@ Mesh* gf3d_mesh_load_obj(const char* filename)
     }
 
     mesh = gf3d_mesh_new();
-    gfc_line_cpy(mesh->filename, filename);
+
     if (!mesh)
     {
         slog("failed to allocate new mesh");
+        gf3d_mesh_free(mesh);
         return NULL;
     }
+
+    gfc_line_cpy(mesh->filename, filename);
+  
 
     MeshPrimitive *prim = gf3d_mesh_primitive_new();
     if (!prim)

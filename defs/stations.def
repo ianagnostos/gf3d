@@ -1,0 +1,33 @@
+{
+	"stations": [
+		{
+			"name":"counter",
+			"mode":"counter",
+			"model":"models/primitives/cube.model",
+			"scale" : [5, 5, 3] ,
+			"bounds" : {"m": [-2.5, -2.5, -1.5] , "s" : [5, 5, 3] },
+			"floorOffset":3,
+			"color":[190,160,110,255]
+		},
+		{
+			"name":"tomato_crate",
+			"mode":"crate",
+			"gives":"tomato",
+			"model":"models/primitives/cube.model",
+			"scale" : [5, 5, 3] ,
+			"bounds" : {"m": [-2.5,-2.5,-1.5] , "s" : [5,5,3] },
+			"floorOffset":3,
+			"color":[200,90,90,255]
+		},
+		{
+			"name":"lettuce_crate",
+			"mode":"crate",
+			"gives":"lettuce",
+			"model":"models/primitives/cube.model",
+			"scale":[5, 5, 3],
+			"bounds" : {"m": [-2.5,-2.5,-1.5] , "s" : [5,5,3] },
+			"floorOffset":3,
+			"color":[110,190,110,255]
+		}
+	]
+}

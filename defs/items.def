@@ -1,0 +1,22 @@
+{
+    "items": [
+        {
+            "name": "tomato",
+            "model" : "models/primitives/cube.model",
+            "bounds": {
+                "m": [ -2, -2, -2 ],
+                "s": [ 4, 4, 4 ]
+            },
+            "color": [ 220, 60, 60, 255 ]
+        },
+        {
+            "name": "lettuce",
+            "model": "models/primitives/cube.model",
+            "bounds": {
+                "m": [ -2, -2, -2 ],
+                "s": [ 4, 4, 4 ]
+            },
+            "color": [ 90, 200, 90, 255 ]
+        }
+    ]
+}

@@ -25,4 +25,14 @@ void level_free(Level* level);
 
 void level_draw(Level* level);
 
+Uint8 level_line_test(Level* level, GFC_Edge3D edge, GFC_Vector3D* contact);
+
+Level* level_get_the();
+
+
+/*
+*@breif check if the following boundsing box is clipping or outside the level bounds
+*/
+Uint8 level_bounds_check(Level* level, GFC_Box aabb);
+
 #endif

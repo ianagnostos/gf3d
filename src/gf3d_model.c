@@ -16,6 +16,7 @@ typedef struct
 	Model*	modelList;
 	Uint32	modelCount;
 	Pipeline*	pipe;
+    Pipeline* debug;
 	VkDevice device;
     Texture* defaultTexture;
 } ModelManager;
@@ -56,12 +57,33 @@ void model_init_system(Uint32 modelCount)
         sizeof(ModelUBO),
         VK_INDEX_TYPE_UINT32
     );
+
+    model_manager.debug = gf3d_pipeline_create_from_config(
+        gf3d_vgraphics_get_default_logical_device(),
+        "config/debug_pipeline.cfg",
+        gf3d_vgraphics_get_view_extent(),
+        modelCount,
+        gf3d_mesh_get_bind_description(),
+        gf3d_mesh_get_attribute_descriptions(NULL),
+        3,
+        sizeof(ModelUBO),
+        VK_INDEX_TYPE_UINT32
+    );
+
     if (!model_manager.pipe)
     {
         slog("failed to make pipeline for models");
         slog_sync();
         exit(-1);
     }
+
+    if (!model_manager.debug)
+    {
+        slog("failed to make pipeline for debug");
+        slog_sync();
+        exit(-1);
+    }
+
     model_manager.defaultTexture = gf3d_texture_load("images/default.png");
     if (!model_manager.defaultTexture)
     {
@@ -194,6 +216,7 @@ Model *model_load(const char *filename)
     if (!mesh)
     {
         slog("no mesh loaded in model.c");
+        sj_free(json);
         return NULL;
     }
     str2 = sj_object_get_string(data, "texture");
@@ -267,3 +290,17 @@ void gf3d_model_queue_render(Model* model, GFC_Matrix4 mat, GFC_Color colorMod)
     ubo = gf3d_model_get_ubo(mat, colorMod);
     gf3d_mesh_queue_render(model->mesh, model_manager.pipe, &ubo, model->texture);
 }
+
+void gf3d_high_queue_render(Model* model, GFC_Matrix4 mat, GFC_Color colorMod)
+{
+    ModelUBO ubo;
+    if (!model)
+    {
+        slog("model is NULL");
+        return;
+    }
+    ubo = gf3d_model_get_ubo(mat, colorMod);
+    gf3d_mesh_queue_render(model->mesh, model_manager.debug, &ubo, model->texture);
+}
+
+

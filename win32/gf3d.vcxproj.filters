@@ -180,6 +180,18 @@
     <ClCompile Include="..\src\level.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\item.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\draw_3d.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\fridge.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\station.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\gfc\simple_json\include\simple_json.h">
@@ -351,6 +363,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="level.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\item.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\draw_3d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fridge.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\station.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

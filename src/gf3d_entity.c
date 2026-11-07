@@ -2,6 +2,10 @@
 #include "gfc_matrix.h"
 #include "gf3d_entity.h"
 
+#include "level.h"
+
+#include "draw_3d.h"
+
 typedef struct
 {
 	Entity* entityList;
@@ -66,7 +70,6 @@ Entity* entity_new()
 		Entity* ent = &entity_manager.entityList[i];
 		if (ent->_inuse) continue;
 		memset(ent, 0, sizeof(Entity));
-		ent->_inuse = 1;
 		//any boilerplate code goes here
 		ent->_inuse = 1;
 		ent->scale = gfc_vector3d(1, 1, 1);
@@ -87,11 +90,11 @@ void entity_free(Entity* ent)
 
 void entity_draw(Entity* self)
 {
+	GFC_Box debug;
 	if ((!self) || (!self->_inuse)) return;
 	if (self->draw)
 	{
 		self->draw(self);
-		return;
 	}
 
 	gfc_matrix4_from_vectors(
@@ -100,6 +103,12 @@ void entity_draw(Entity* self)
 		self->rotation,
 		self->scale);
 	gf3d_model_queue_render(self->model, self->mat, self->color);
+
+	/*
+	debug = self->bounds;
+	gfc_vector3d_add(debug, self->bounds, self->position);
+	draw_3d_cube(debug);
+	*/
 }
 
 void entity_system_draw()
@@ -122,15 +131,6 @@ void entity_think(Entity *self)
 
 }
 
-void entity_update(Entity *self)
-{
-	if ((!self) || (!self->_inuse)) return;
-	if (self->update)
-	{
-		self->update(self);
-	}
-}
-
 void entity_system_think()
 {
 	int i;
@@ -138,6 +138,21 @@ void entity_system_think()
 	{
 		if (!entity_manager.entityList[i]._inuse) continue;
 		entity_think(&entity_manager.entityList[i]);
+	}
+}
+
+void entity_update(Entity *self)
+{
+	if ((!self) || (!self->_inuse)) return;
+
+	if (!entity_move_check(self, self->velocity))
+	{
+		gfc_vector3d_add(self->position, self->position, self->velocity);
+	}
+
+	if (self->update)
+	{
+		self->update(self);
 	}
 }
 
@@ -149,4 +164,46 @@ void entity_system_update()
 		if (!entity_manager.entityList[i]._inuse) continue;
 		entity_update(&entity_manager.entityList[i]);
 	}
+}
+
+int entity_collision_other(Entity* self, Entity* other)
+{
+	GFC_Box a, b;
+	if ((!self) || (!other)) return 0;
+
+	a = self->bounds;
+	b = other->bounds;
+
+	gfc_vector3d_add(a, a, self->position);
+	gfc_vector3d_add(b, b, other->position);
+
+	return gfc_box_overlap(a, b);
+}
+
+int entity_move_check(Entity* self, GFC_Vector3D offset)
+{
+	GFC_Box aabb, other;
+	Entity* temp;
+	if (!self) return 0;
+
+	aabb = self->bounds;
+	gfc_vector3d_add(aabb, aabb, self->position);
+	gfc_vector3d_add(aabb, aabb, offset);
+
+	if (level_bounds_check(level_get_the(), aabb)) return 1;
+
+	for (int i = 0; i < entity_manager.maxEnts; i++)
+	{
+		temp = &entity_manager.entityList[i];
+		if ((!temp->_inuse) || (temp == self) || (!temp->solid)) continue;
+		other = temp->bounds;
+		gfc_vector3d_add(other, other, temp->position);
+
+		if (gfc_box_overlap(other, aabb))
+		{
+			return 1;
+		}
+		
+	}
+	return 0;
 }
