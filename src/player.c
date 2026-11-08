@@ -15,6 +15,8 @@
 #define ITEM_HELD_HEIGHT 9.0f
 #define ITEM_HELD_FORWARD 0.0f
 
+extern float dt;
+
 static Entity* players[2] = { 0 };
 
 static const char* pickupCmd[2] = { "item_pickup", "p2_pickup" };
@@ -27,6 +29,7 @@ typedef struct
 	float facingX, facingY;
 	Entity* holding;
 	StationData* target;
+	StationData* working_at;
 }PlayerEntityData;
 
 int player_think(Entity* self);
@@ -74,6 +77,8 @@ Entity* player_spawn(GFC_Vector3D position, int index)
 	{
 		data->speed = 1;
 		data->index = index;
+		data->facingY = 1;
+		data->facingY = 0;
 	}
 
 	//slog("end of player spawn");
@@ -107,8 +112,8 @@ int player_update(Entity* self)
 		view = gf3d_vgraphics_get_view_matrix();
 		offset = gfc_vector3d(0, CAMERA_FOLLOW_DISTANCE, CAMERA_HEIGHT);
 		gfc_matrix4_view(*view, offset, gfc_vector3d(0, 0, 0), gfc_vector3d(0, 0, 1));
-		return 0;
 	}
+	return 0;
 }
 
 
@@ -157,6 +162,26 @@ int player_think(Entity* self)
 	{
 		slog("picked up object");
 		data->target->interact(data->target, self);
+	}
+
+	StationData* station_to_be_used;
+	if ((data->target) && (data->target->use) && (gfc_input_command_down(useCmd[data->index - 1])))
+	{
+		station_to_be_used = data->target;
+
+		if ((data->working_at) && (data->working_at != station_to_be_used))
+		{
+			if (data->working_at->user == self) 
+				data->working_at->user = NULL;
+			data->working_at = NULL;
+		}
+
+		if ((station_to_be_used) && ((!station_to_be_used->user) || (station_to_be_used->user == self)))
+		{
+			station_to_be_used->user = self;
+			data->working_at = station_to_be_used;
+			station_to_be_used->use(station_to_be_used, self, dt);
+		}
 	}
 
 	if (data->holding)
