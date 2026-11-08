@@ -1,0 +1,6 @@
+{
+  "model": {
+    "obj": "models/terrain/floor.obj",
+    "texture": "models/terrain/kitchen_floor.png"
+  }
+}
