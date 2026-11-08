@@ -9,6 +9,8 @@ typedef struct
 {
 	char* name;
 	ItemState state;
+	int       choppable;
+	GFC_Color choppedColor;
 }ItemData;
 
 Entity* spawn_item(const char* itemName, GFC_Vector3D position);

@@ -1,33 +1,40 @@
 {
-	"stations": [
-		{
-			"name":"counter",
-			"mode":"counter",
-			"model":"models/primitives/cube.model",
-			"scale" : [5, 5, 3] ,
-			"bounds" : {"m": [-2.5, -2.5, -1.5] , "s" : [5, 5, 3] },
-			"floorOffset":3,
-			"color":[190,160,110,255]
-		},
+	"stations":
+	[
+	{
+		"name":"counter",
+			"mode" : "counter",
+			"model" : "models/primitives/cube.model",
+			"scale" : [10, 10, 6] ,
+			"bounds" : {"m": [-5, -5, -3] , "s" : [10, 10, 6] },
+			"color" : [190, 160, 110, 255]
+	},
 		{
 			"name":"tomato_crate",
-			"mode":"crate",
-			"gives":"tomato",
-			"model":"models/primitives/cube.model",
-			"scale" : [5, 5, 3] ,
-			"bounds" : {"m": [-2.5,-2.5,-1.5] , "s" : [5,5,3] },
-			"floorOffset":3,
-			"color":[200,90,90,255]
+			"mode" : "crate",
+			"gives" : "tomato",
+			"model" : "models/primitives/cube.model",
+			"scale" : [10, 10, 6] ,
+			"bounds" : {"m": [-5, -5, -3] , "s" : [10, 10, 6] },
+			"color" : [200, 90, 90, 255]
 		},
 		{
 			"name":"lettuce_crate",
-			"mode":"crate",
-			"gives":"lettuce",
-			"model":"models/primitives/cube.model",
-			"scale":[5, 5, 3],
-			"bounds" : {"m": [-2.5,-2.5,-1.5] , "s" : [5,5,3] },
-			"floorOffset":3,
-			"color":[110,190,110,255]
+			"mode" : "crate",
+			"gives" : "lettuce",
+			"model" : "models/primitives/cube.model",
+			"scale" : [10, 10, 6] ,
+			"bounds" : {"m": [-5, -5, -3] , "s" : [10, 10, 6] },
+			"color" : [110, 190, 110, 255]
+		},
+		{
+			"name":"chopping_board",
+			"mode" : "chopping",
+			"model" : "models/primitives/cube.model",
+			"scale" : [10, 10, 6] ,
+			"bounds" : {"m": [-5, -5, -3] , "s" : [10, 10, 6] },
+			"color" : [160, 110, 60, 255] ,
+			"duration" : 3.0
 		}
 	]
 }

@@ -31,10 +31,12 @@
 
 
 extern int __DEBUG;
+extern float dt;
 
 static int _done = 0;
 static Uint32 frame_delay = 33;
 static float fps = 0;
+float dt = 0.033f;
 
 void parse_arguments(int argc,char *argv[]);
 void game_frame_delay();
@@ -78,7 +80,6 @@ int main(int argc,char *argv[])
 
     Uint64 NOW = SDL_GetPerformanceCounter();
     Uint64 LAST = 0;
-    float deltaTime = 0.0f;
 
     slog_sync();
     //bg = gf2d_sprite_load_image("images/bg_flat.png");
@@ -88,12 +89,11 @@ int main(int argc,char *argv[])
     player_spawn(gfc_vector3d(-20, 20, 4), 1);
     player_spawn(gfc_vector3d(-10, 10, 4), 2);
 
-    station_spawn("tomato_crate", gfc_vector3d(-40, -30, 0));
-    station_spawn("lettuce_crate", gfc_vector3d(-20, -30, 0));
-    station_spawn("counter", gfc_vector3d(0, -30, 0));
-    station_spawn("counter", gfc_vector3d(20, -30, 0));
-
-    Entity* fridge = fridge_spawn(gfc_vector3d(25, 25, 5));
+    station_spawn("tomato_crate", gfc_vector3d(-40, -30, 3));
+    station_spawn("lettuce_crate", gfc_vector3d(-20, -30, 3));
+    station_spawn("counter", gfc_vector3d(0, -30, 3));
+    station_spawn("counter", gfc_vector3d(20, -30, 3));
+    station_spawn("chopping_board", gfc_vector3d(40, -30, 3));
 
     // main game loop    
     while(!_done)
@@ -101,7 +101,8 @@ int main(int argc,char *argv[])
         LAST = NOW;
         NOW = SDL_GetPerformanceCounter();
 
-        deltaTime = (float)(NOW - LAST) / (float)SDL_GetPerformanceFrequency();
+        dt = (float)(NOW - LAST) / (float)SDL_GetPerformanceFrequency();
+        if (dt > 0.05f) dt = 0.05f;
 
 
         gfc_input_update();

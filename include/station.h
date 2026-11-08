@@ -6,11 +6,16 @@
 typedef struct StationData_S
 {
 	Entity* ent;
-	char* gives;
+	Entity* user;
 	Entity* slot;
+	char* gives;
 	GFC_Color stationColor;
+	float progress, duration;
+
 	int (*can_accept)(struct StationData_S* self, Entity *item);
 	void (*interact)(struct StationData_S* self, Entity* player);
+	void (*use)(struct StationData* self, Entity* player, float dt);
+
 }StationData;
 
 Entity* station_spawn(const char* name, GFC_Vector3D position);

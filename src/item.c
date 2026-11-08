@@ -15,6 +15,7 @@ void item_free(Entity* self)
 	self->data = NULL;
 }
 
+/*
 int item_think(Entity* self)
 {
 	if (!self) return 0;
@@ -34,7 +35,7 @@ int item_think(Entity* self)
 	}
 
 	return 0;
-}
+}*/
 
 Entity* spawn_item(const char* itemName, GFC_Vector3D position)
 {
@@ -42,6 +43,7 @@ Entity* spawn_item(const char* itemName, GFC_Vector3D position)
 	Entity* self;
 	ItemData* data;
 	const char* str;
+	short int choppable = 0;
 
 	if (!itemName) return NULL;
 
@@ -55,6 +57,11 @@ Entity* spawn_item(const char* itemName, GFC_Vector3D position)
 	if (!self) return NULL;
 
 	data = gfc_allocate_array(sizeof(ItemData), 1);
+	if (!data)
+	{
+		entity_free(self);
+		return NULL;
+	}
 	
 	str = sj_object_get_string(itemdef, "model");
 	if (str)
@@ -62,9 +69,7 @@ Entity* spawn_item(const char* itemName, GFC_Vector3D position)
 		self->model = model_load(str);
 	}
 
-	slog("item %s model %p", itemName, (void*)self->model);
-
-	self->think = item_think;
+	//self->think = item_think;
 	self->bounds = gfc_box_from_config(sj_object_get_value(itemdef, "bounds"));
 	self->data = data;
 	self->scale = gfc_vector3d(1, 1, 1);
@@ -72,12 +77,14 @@ Entity* spawn_item(const char* itemName, GFC_Vector3D position)
 	self->position = position;
 	self->free = item_free;
 	self->color = sj_object_get_color(itemdef, "color");
-	data = self->data;
 
 	if (data)
 	{
 		data->name = sj_object_get_string(itemdef, "name");
 		data->state = ITEM_RAW;
+		sj_get_bool_value(sj_object_get_value(itemdef, "choppable"), &choppable);
+		data->choppable = choppable;
+		data->choppedColor = sj_object_get_color(itemdef, "choppedColor");
 	}
 	return self;
 }

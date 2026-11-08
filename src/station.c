@@ -11,6 +11,7 @@
 #define REACH 8.0f
 
 static StationData* stations[MAX_STATIONS] = { 0 };
+static Model* barModel = NULL;
 
 GFC_Vector3D slot_position(Entity* self)
 {
@@ -22,6 +23,26 @@ GFC_Vector3D slot_position(Entity* self)
 
 int no_accept(StationData* self, Entity* item) { return 0; }
 int counter_accept(StationData* self, Entity* item) { return (item) && (!self->slot); }
+
+int board_accept(StationData* self, Entity* item)
+{
+	ItemData* d = item_get_data(item);
+	return (!self->slot) && (d) && (d->choppable) && (d->state == ITEM_RAW);
+}
+
+void board_use(StationData* self, Entity* player, float dt)
+{
+	ItemData* d = item_get_data(self->slot);
+	if ((!d) || (!d->choppable) || (d->state != ITEM_RAW)) return;
+	self->progress += dt;
+	if (self->progress >= self->duration)
+	{
+		d->state = ITEM_CHOPPED;
+		self->slot->color = d->choppedColor;
+		self->progress = 0;
+	}
+}
+
 
 void counter_interact(StationData* self, Entity* player)
 {
@@ -37,6 +58,12 @@ void counter_interact(StationData* self, Entity* player)
 		player_set_holding(player, self->slot);
 		self->slot = NULL;
 	}
+}
+
+void board_interact(StationData* self, Entity* player)
+{
+	counter_interact(self, player);
+	if (!self->slot) self->progress = 0;
 }
 
 void crate_interact(StationData* self, Entity* player)
@@ -63,6 +90,49 @@ void station_free(Entity* ent)
 	free(sd);
 	ent->data = NULL;
 }
+
+int station_draw(Entity* self)
+{
+	GFC_Matrix4 barMat;
+	StationData* data;
+	if ((!self) || (!self->data)) return 0;
+	data = self->data;
+
+	if ((data->duration > 0) && (data->progress > 0) && (data->slot))
+	{
+		float percent_done = data->progress / data->duration;
+		float bar_width = self->bounds.w;
+		float bar_x = self->position.x + self->bounds.x + (self->bounds.w * 0.5f);
+		float bar_y = self->position.y + self->bounds.y + (self->bounds.h * 0.5f);
+		float bar_z = self->position.z + self->bounds.z + self->bounds.d + 7.0f;
+
+		if (!barModel)
+		{
+			barModel = model_load("models/primitives/cube.model");
+			if (!barModel)
+			{
+				slog("no progress bar model found");
+				return 0;
+			}
+		}
+
+		gfc_matrix4_from_vectors
+		(barMat,
+			gfc_vector3d(bar_x, bar_y, bar_z),
+			gfc_vector3d(0, 0, 0),
+			gfc_vector3d(bar_width, 2, 2));
+		gf3d_model_queue_render(barModel, barMat, GFC_COLOR_BLACK);
+
+		gfc_matrix4_from_vectors
+		(barMat,
+			gfc_vector3d(bar_x - bar_width * 0.5f + (bar_width * percent_done) * 0.5f, bar_y, bar_z + 0.5f),
+			gfc_vector3d(0, 0, 0),
+			gfc_vector3d(bar_width * percent_done, 2, 2.5f));
+		gf3d_model_queue_render(barModel, barMat, GFC_COLOR_LIGHTGREEN);
+	}
+	return 0;
+}
+
 
 Entity* station_spawn(const char* name, GFC_Vector3D position)
 {
@@ -106,6 +176,7 @@ Entity* station_spawn(const char* name, GFC_Vector3D position)
 	if (sj_object_get_vector3d(def, "scale", &v)) ent->scale = v;
 	ent->solid = 1;
 	ent->position = position;
+	ent->draw = station_draw;
 
 	st->ent = ent;
 	st->stationColor = ent->color;
@@ -120,6 +191,13 @@ Entity* station_spawn(const char* name, GFC_Vector3D position)
 			slog("%s", str);
 			st->gives = str;
 		}
+	}
+	else if ((str) && strcmp(str, "chopping") == 0)
+	{
+		st->interact = board_interact;
+		st->can_accept = board_accept;
+		st->use = board_use;
+		sj_get_float_value(sj_object_get_value(def, "duration"), &st->duration); 
 	}
 	else
 	{

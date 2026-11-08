@@ -3,6 +3,8 @@
         {
             "name": "tomato",
             "model" : "models/primitives/cube.model",
+            "choppable" : true,
+            "choppedColor" : [150, 20, 20, 255],
             "bounds": {
                 "m": [ -2, -2, -2 ],
                 "s": [ 4, 4, 4 ]
@@ -12,6 +14,8 @@
         {
             "name": "lettuce",
             "model": "models/primitives/cube.model",
+            "choppable" : true,
+            "choppedColor" : [40,140,40,255],
             "bounds": {
                 "m": [ -2, -2, -2 ],
                 "s": [ 4, 4, 4 ]
