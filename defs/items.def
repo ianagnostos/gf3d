@@ -3,6 +3,7 @@
         {
             "name": "tomato",
             "model" : "models/primitives/cube.model",
+            "scale" : [4, 4, 4] ,
             "choppable" : true,
             "choppedColor" : [150, 20, 20, 255],
             "bounds": {
@@ -14,6 +15,7 @@
         {
             "name": "lettuce",
             "model": "models/primitives/cube.model",
+            "scale" : [4, 4, 4] ,
             "choppable" : true,
             "choppedColor" : [40,140,40,255],
             "bounds": {
@@ -21,6 +23,14 @@
                 "s": [ 4, 4, 4 ]
             },
             "color": [ 90, 200, 90, 255 ]
+        },
+        {
+            "name": "plate",
+            "model" : "models/primitives/cube.model",
+            "scale" : [6, 6, 1] ,
+            "plate" : true,
+            "bounds" : { "m": [-3, -3, -0.5] , "s" : [6, 6, 1] },
+            "color" : [235, 235, 235, 255]
         }
     ]
 }

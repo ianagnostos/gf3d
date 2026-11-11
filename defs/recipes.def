@@ -1,0 +1,15 @@
+{
+	"recipes":
+	[
+		{
+			"name":"salad",
+			"points" : 20.0,
+			"patience" : 60.0,
+			"ingredients" :
+			[
+				{ "item":"lettuce", "state" : "chopped" },
+				{ "item":"tomato",  "state" : "chopped" }
+			]
+		}
+	]
+}

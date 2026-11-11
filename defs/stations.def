@@ -35,6 +35,23 @@
 			"bounds" : {"m": [-5, -5, -3] , "s" : [10, 10, 6] },
 			"color" : [160, 110, 60, 255] ,
 			"duration" : 3.0
+		},
+		{
+			"name": "plate_stack",
+			"mode" : "crate",
+			"gives" : "plate",
+			"model" : "models/primitives/cube.model",
+			"scale" : [10, 10, 6] ,
+			"bounds" : { "m": [-5, -5, -3] , "s" : [10, 10, 6] },
+			"color" : [230, 230, 240, 255]
+		},
+		{
+			"name": "serving_window",
+			"mode" : "serving",
+			"model" : "models/primitives/cube.model",
+			"scale" : [40, 12, 8] ,
+			"bounds" : { "m": [-20, -6, -4] , "s" : [40, 12, 8] },
+			"color" : [230, 190, 60, 255]
 		}
 	]
 }

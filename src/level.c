@@ -64,7 +64,6 @@ Uint8 level_bounds_check(Level *level, GFC_Box aabb)
 
 Level* level_new()
 {
-	slog("making new level");
 	Level* level;
 	level = gfc_allocate_array(sizeof(Level), 1);
 	if (!level)
@@ -84,7 +83,7 @@ Level* level_load(const char* filename)
 	const char* str;
 	Level* level;
 
-	slog("trying to load level");
+	slog("loading level");
 
 	json = sj_load(filename);
 	if (!json)
@@ -92,9 +91,6 @@ Level* level_load(const char* filename)
 		slog("unable to load json for %s", filename);
 		return NULL;
 	}
-
-
-	slog("loading1");
 
 	data = sj_object_get_value(json, "level");
 	if (!data)
@@ -104,16 +100,12 @@ Level* level_load(const char* filename)
 		return NULL;
 	}
 
-	slog("loading2");
-
 	level = level_new();
 	if (!level)
 	{
 		slog("no level !!");
 		return NULL;
 	}
-
-	slog("loading3");
 
 	str = sj_object_get_string(data, "sky");
 	if (str)
@@ -127,8 +119,6 @@ Level* level_load(const char* filename)
 		}
 	}
 
-	slog("loading4");
-
 	str = sj_object_get_string(data, "terrain");
 	if (str)
 	{
@@ -140,8 +130,6 @@ Level* level_load(const char* filename)
 			slog("no terrain!");
 		}
 	}
-
-	slog("loading5");
 
 	level->bounds = gfc_box_from_config(sj_object_get_value(data, "bounds"));
 	/*
@@ -157,15 +145,9 @@ Level* level_load(const char* filename)
 	}
 	*/
 
-	slog("loading6");
 	level->json = json;
 	theLevel = level;
-
-	slog("end of level");
-
 	return level;
-
-
 }
 
 Level* level_get_the()
