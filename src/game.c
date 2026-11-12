@@ -42,6 +42,7 @@ float dt = 0.033f;
 
 void parse_arguments(int argc,char *argv[]);
 void game_frame_delay();
+void spawn_everything();
 
 void exitGame()
 {
@@ -61,14 +62,13 @@ int main(int argc,char *argv[])
     init_logger("gf3d.log",0);
     slog("gf3d begin");
 
-    //gfc init
-    gfc_input_init("config/input.cfg");
     gfc_config_def_init();
     gfc_action_init(1024);
 
     //gf3d init
     gf3d_vgraphics_init("config/setup.cfg");
     gfc_sound_init_config("config/audio.cfg");
+    gfc_input_init("config/input.cfg");
     gf2d_font_init("config/font.cfg");
     gf2d_actor_init(1000);
     draw_3d_init();
@@ -97,22 +97,7 @@ int main(int argc,char *argv[])
 
     NOW = SDL_GetPerformanceCounter();
 
-    player_spawn(gfc_vector3d(-20, 20, 4), 1);
-    player_spawn(gfc_vector3d(-10, 10, 4), 2);
-
-    station_spawn("tomato_crate", gfc_vector3d(-40, -30, 3));
-    station_spawn("lettuce_crate", gfc_vector3d(-20, -30, 3));
-    station_spawn("patty_crate", gfc_vector3d(-60, -10, 3));
-    station_spawn("counter", gfc_vector3d(-10, -30, 3));
-    station_spawn("counter", gfc_vector3d(0, -30, 3));
-    station_spawn("counter", gfc_vector3d(10, -30, 3));
-    station_spawn("counter", gfc_vector3d(20, -30, 3));
-    station_spawn("chopping_board", gfc_vector3d(40, -30, 3));
-    station_spawn("plate_stack", gfc_vector3d(60, -30, 3));
-    station_spawn("stove", gfc_vector3d(-60, -30, 3));
-    station_spawn("sink", gfc_vector3d(70, 10, 3));
-    station_spawn("serving_window", gfc_vector3d(0, 55, 4));
-    station_spawn("trash_can", gfc_vector3d(60, -10, 3));
+    spawn_everything();
 
     // main game loop    
     while(!_done)
@@ -123,6 +108,7 @@ int main(int argc,char *argv[])
         dt = (float)(NOW - LAST) / (float)SDL_GetPerformanceFrequency();
         if (dt > 0.05f) dt = 0.05f; //avoid hitches
 
+        SDL_JoystickUpdate();
         gfc_input_update();
         gf2d_mouse_update();
         gf2d_font_update();
@@ -184,5 +170,54 @@ void game_frame_delay()
         SDL_Delay(frame_delay - diff);
     }
     fps = 1000.0/MAX(SDL_GetTicks() - then,0.001);
+}
+
+static void spawn_everything()
+{
+    station_spawn("counter", gfc_vector3d(45, -35, 3));
+    station_spawn("stove", gfc_vector3d(35, -35, 3));
+    station_spawn("stove", gfc_vector3d(25, -35, 3));
+    station_spawn("counter", gfc_vector3d(15, -35, 3));
+    station_spawn("counter", gfc_vector3d(5, -35, 3));
+    station_spawn("counter", gfc_vector3d(-5, -35, 3));
+    station_spawn("counter", gfc_vector3d(-15, -35, 3));
+    station_spawn("fryer", gfc_vector3d(-25, -35, 3));
+    station_spawn("fryer", gfc_vector3d(-35, -35, 3));
+    station_spawn("counter", gfc_vector3d(-45, -35, 3));
+
+    station_spawn("patty_crate", gfc_vector3d(55, -15, 3));
+    station_spawn("counter", gfc_vector3d(55, -5, 3));
+    station_spawn("bun_crate", gfc_vector3d(55, 5, 3));
+    station_spawn("counter", gfc_vector3d(55, 15, 3));
+    station_spawn("plate_stack", gfc_vector3d(55, 25, 3));
+
+    station_spawn("potato_crate", gfc_vector3d(-55, -15, 3));
+    station_spawn("counter", gfc_vector3d(-55, -5, 3));
+    station_spawn("tomato_crate", gfc_vector3d(-55, 5, 3));
+    station_spawn("counter", gfc_vector3d(-55, 15, 3));
+    station_spawn("lettuce_crate", gfc_vector3d(-55, 25, 3));
+
+    station_spawn("counter", gfc_vector3d(25, -5, 3));
+    station_spawn("counter", gfc_vector3d(15, -5, 3));
+    station_spawn("sink", gfc_vector3d(0, -5, 3));
+    station_spawn("counter", gfc_vector3d(-15, -5, 3));
+    station_spawn("counter", gfc_vector3d(-25, -5, 3));
+
+    for (int x = -25; x <= 25; x += 10)
+        station_spawn("counter", gfc_vector3d(x, 5, 3));
+
+    station_spawn("counter", gfc_vector3d(25, 15, 3));
+    station_spawn("chopping_board", gfc_vector3d(15, 15, 3));
+    station_spawn("counter", gfc_vector3d(5, 15, 3));
+    station_spawn("counter", gfc_vector3d(-5, 15, 3));
+    station_spawn("chopping_board", gfc_vector3d(-15, 15, 3));
+    station_spawn("counter", gfc_vector3d(-25, 15, 3));
+
+    station_spawn("trash_can", gfc_vector3d(65, 45, 3));
+    station_spawn("trash_can", gfc_vector3d(-65, 45, 3));
+    station_spawn("serving_window", gfc_vector3d(0, 55, 4));
+
+    player_spawn(gfc_vector3d(15, 35, 4), 1);
+    player_spawn(gfc_vector3d(-15, 35, 4), 2);
 }
 /*eol@eof*/

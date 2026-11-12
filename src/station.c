@@ -8,14 +8,17 @@
 #include "station.h"
 #include "order.h"
 
-#define MAX_STATIONS 32
+#define MAX_STATIONS 44
 
 #define REACH 8.0f
 #define REACH_SLACK 2.0f
 
-#define PROGRESS_BAR_HEIGHT 7.0f  //how high progress bar is above station
+#define BAR_HEIGHT 7.0f	//how high progress bar is above station
+#define BAR_SIZE 2.0f		//background bar y and z scale values (lowest layer)
+#define BAR_Y_INC 0.4f		//scale added to y so progress bar layers dont overlap completely
+#define BAR_Z_INC 0.5f		//scale added to z so progress bar layers dont overlap completely
 
-#define SLAB_HEIGHT      0.9f     //thickness of one drawn plate slab
+#define SLAB_HEIGHT      0.9f		//thickness of one drawn plate slab
 #define MAX_SLAB_DRAWN  8	
 
 #define DIRTY_PLATE_COLOR gfc_color(0.45f, 0.38f, 0.30f, 1.0f)
@@ -36,12 +39,13 @@ int station_update(Entity* self);
 //drawing functions
 int station_draw(Entity* self);
 static void draw_slabs(Entity* self, int count, float offset_x, float offset_y, float size, GFC_Color color);
+static void draw_cube(GFC_Vector3D center, GFC_Vector3D size, GFC_Color color);
 
 //general helpers
 static GFC_Vector3D slot_position(Entity* station, Entity* item); //place item onto a counter, NOT PLATE
 static int  no_accept(StationData* self, Entity* item); //placeholder if stations does not accept anything
 static int  place_ingredient_on_plate(StationData* self, Entity* player, Entity* held); //place ingredient onto plate, while plate is on counter
-static const StationType* find_station_type(char* mode); //find station type for setup functions
+static const StationType* find_station_type(const char* mode); //find station type for setup functions
 
 //counter
 static int  counter_accept(StationData* self, Entity* item);
@@ -51,12 +55,14 @@ static void counter_setup(StationData* st, SJson* def);
 //crate
 static void crate_interact(StationData* self, Entity* player);
 static void crate_setup(StationData* st, SJson* def);
+static void crate_draw(StationData* self);
 
 //sink
 static int  sink_accept(StationData* self, Entity* item);
 static void sink_interact(StationData* self, Entity* player);
 static void sink_setup(StationData* st, SJson* def);
 static void sink_use(StationData* self, Entity* player, float dt);
+static void sink_draw(StationData* self);
 
 //chopping board
 static int  board_accept(StationData* self, Entity* item);
@@ -70,11 +76,22 @@ static void stove_interact(StationData* self, Entity* player);
 static void stove_setup(StationData* st, SJson* def);
 static void stove_tick(StationData* self, float dt);
 
+// fryer
+static int  fryer_accept(StationData* self, Entity* item);
+static void fryer_interact(StationData* self, Entity* player);
+static void fryer_setup(StationData* st, SJson* def);
+static int  fryer_is_cooking(StationData* self);
+static void fryer_tick(StationData* self, float dt);
+static void fryer_draw(StationData* self);
+static void fryer_use(StationData* self, Entity* player, float dt);
+static float fryer_marker_position(StationData* self);
+
 //serving window
 static int  serving_accept(StationData* self, Entity* item);
 static void serving_interact(StationData* self, Entity* player);
 static void serving_setup(StationData* st, SJson* def);
 static void serving_tick(StationData* self, float dt);
+static void serving_draw(StationData* self);
 
 //trash can
 static int  trash_accept(StationData* self, Entity* item);
@@ -90,6 +107,7 @@ static const StationType station_types[] =
 	{ "cooking",    stove_setup },
 	{ "trash",    trash_setup },
 	{ "cleaning",     sink_setup },
+	{ "frying",    fryer_setup },
 };
 
 
@@ -99,7 +117,7 @@ Entity* station_spawn(const char* name, GFC_Vector3D position)
 	Entity* ent;
 	StationData* data;
 	StationType* type;
-	char* str;
+	const char* str;
 	GFC_Vector3D v;
 	int i;
 
@@ -149,7 +167,6 @@ Entity* station_spawn(const char* name, GFC_Vector3D position)
 
 	data->ent = ent;
 	data->stationColor = ent->color;
-	str = sj_object_get_string(def, "mode");
 	
 	//setup specific to station type
 	type->setup(data, def);
@@ -181,7 +198,6 @@ void station_free(Entity* ent)
 	ent->data = NULL;
 }
 
-//only draws progress bar
 int station_draw(Entity* self)
 {
 	GFC_Matrix4 barMat;
@@ -205,7 +221,7 @@ int station_draw(Entity* self)
 		float barWidth = self->bounds.w;
 		float barX = self->position.x + self->bounds.x + (self->bounds.w * 0.5f);
 		float barY = self->position.y + self->bounds.y + (self->bounds.h * 0.5f);
-		float barZ = self->position.z + self->bounds.z + self->bounds.d + PROGRESS_BAR_HEIGHT;
+		float barZ = self->position.z + self->bounds.z + self->bounds.d + BAR_HEIGHT;
 
 		if (!barModel)
 		{
@@ -217,28 +233,23 @@ int station_draw(Entity* self)
 			}
 		}
 
-		//black background bar
+		//black background bar - layer 0
 		gfc_matrix4_from_vectors
 		(barMat,
 			gfc_vector3d(barX, barY, barZ),
 			gfc_vector3d(0, 0, 0),
-			gfc_vector3d(barWidth, 2, 2));
+			gfc_vector3d(barWidth, BAR_SIZE, BAR_SIZE));
 		gf3d_model_queue_render(barModel, barMat, GFC_COLOR_BLACK);
 
-		//progress bar
+		//progress bar - layer 1
 		gfc_matrix4_from_vectors
 		(barMat,
 			gfc_vector3d(barX - barWidth * 0.5f + (barWidth * percentDone) * 0.5f, barY, barZ + 0.5f),
 			gfc_vector3d(0, 0, 0),
-			gfc_vector3d(barWidth * percentDone, 2, 2.5f));
+			gfc_vector3d(barWidth * percentDone, BAR_SIZE + BAR_Y_INC, BAR_SIZE + BAR_Z_INC));
 		gf3d_model_queue_render(barModel, barMat, barColor);
 	}
-	//plate crate stack
-	draw_slabs(self, data->stock, 0, 0, 6, GFC_COLOR_WHITE);
-	//serving window dirty stack
-	draw_slabs(self, data->dirtyCount, 0, -3, 4, DIRTY_PLATE_COLOR);
-	//sink clean plate stack
-	draw_slabs(self, data->cleanCount, 3, 0, 4, GFC_COLOR_WHITE);
+	if (data->draw) data->draw(data);
 	return 1;
 }
 
@@ -268,6 +279,18 @@ static void draw_slabs(Entity* self, int count, float offset_x, float offset_y, 
 			gfc_vector3d(size, size, SLAB_HEIGHT));
 		gf3d_model_queue_render(barModel, slabMatrix, color);
 	}
+}
+
+static void draw_cube(GFC_Vector3D center, GFC_Vector3D size, GFC_Color color)
+{
+	GFC_Matrix4 mat;
+	if (!barModel)
+	{
+		barModel = model_load("models/primitives/cube.model");
+		if (!barModel) return;
+	}
+	gfc_matrix4_from_vectors(mat, center, gfc_vector3d(0, 0, 0), size);
+	gf3d_model_queue_render(barModel, mat, color);
 }
 
 StationData* station_get_data(Entity* station)
@@ -448,6 +471,12 @@ static void crate_setup(StationData* st, SJson* def)
 	}
 	st->interact = crate_interact;
 	st->can_accept = no_accept;
+	st->draw = crate_draw;
+}
+
+static void crate_draw(StationData* self)
+{
+	draw_slabs(self->ent, self->stock, 0, 0, 6, GFC_COLOR_WHITE); //plates
 }
 
 //sink
@@ -486,6 +515,7 @@ static void sink_setup(StationData* st, SJson* def)
 	st->use = sink_use;
 	st->buttonMashFlag = 1;
 	sj_get_float_value(sj_object_get_value(def, "duration"), &st->duration);
+	st->draw = sink_draw;
 }
 
 static void sink_use(StationData* self, Entity* player, float dt)
@@ -498,6 +528,24 @@ static void sink_use(StationData* self, Entity* player, float dt)
 		self->dirtyCount--;
 		self->cleanCount++;
 	}
+}
+
+static void sink_draw(StationData* self)
+{
+	Entity* ent = self->ent;
+	float x = ent->position.x + ent->bounds.x + ent->bounds.w * 0.5f;
+	float y = ent->position.y + ent->bounds.y + ent->bounds.h * 0.5f;
+	float top = ent->position.z + ent->bounds.z + ent->bounds.d;
+
+	//sink basin
+	draw_cube(gfc_vector3d(x + 5.0f, y, top + 0.15f),
+		gfc_vector3d(9.0f, 8.0f, 0.3f),
+		gfc_color(0.25f, 0.45f, 0.8f, 1.0f));
+
+	//dirty plates
+	draw_slabs(ent, self->dirtyCount, 5, 0, 4, DIRTY_PLATE_COLOR);
+	//clean plates
+	draw_slabs(ent, self->cleanCount, -5, 0, 4, GFC_COLOR_WHITE);
 }
 
 //chopping board
@@ -592,13 +640,117 @@ static void stove_tick(StationData* self, float dt)
 	}
 }
 
+//fryer
+static int fryer_accept(StationData* self, Entity* item)
+{
+	ItemData* data = item_get_data(item);
+	if ((self->slot) || (!data) || (!data->fryable)) return 0;
+	return (data->state == ITEM_CHOPPED);
+}
+
+static void fryer_interact(StationData* self, Entity* player)
+{
+	counter_interact(self, player);
+	//reset timers
+	if (!self->slot) self->sweepTime = 0;       
+}
+
+static void fryer_setup(StationData* st, SJson* def)
+{
+	st->interact = fryer_interact;
+	st->can_accept = fryer_accept;
+	st->tick = fryer_tick;
+	st->draw = fryer_draw;
+	st->use = fryer_use;
+	st->buttonMashFlag = 1;
+	sj_get_float_value(sj_object_get_value(def, "sweepSpeed"), &st->sweepSpeed);
+	sj_get_float_value(sj_object_get_value(def, "zoneStart"), &st->zoneStart);
+	sj_get_float_value(sj_object_get_value(def, "zoneWidth"), &st->zoneWidth);
+}
+
+static int fryer_is_cooking(StationData* self)
+{
+	ItemData* data = item_get_data(self->slot);
+	return (data) && (data->fryable) && (data->state == ITEM_CHOPPED);
+}
+
+static void fryer_tick(StationData* self, float dt)
+{
+	if (fryer_is_cooking(self)) self->sweepTime += dt;
+}
+
+static float fryer_marker_position(StationData* self)
+{
+	float pos = fmodf(self->sweepTime * self->sweepSpeed, 2.0f);
+	if (pos <= 1.0f)
+		return pos;
+	else
+		return 2.0f - pos;
+}
+
+static void fryer_draw(StationData* self)
+{
+	Entity* ent = self->ent;
+	float barWidth, barLeftpos, barY, barZ, position;
+
+	if (!fryer_is_cooking(self)) return;
+
+	barWidth = ent->bounds.w;
+	barLeftpos = ent->position.x + ent->bounds.x;
+	barY = ent->position.y + ent->bounds.y + ent->bounds.h * 0.5f;
+	barZ = ent->position.z + ent->bounds.z + ent->bounds.d + BAR_HEIGHT;
+
+	//get position of player cube as fraction from 0 to 1
+	position = fryer_marker_position(self);
+
+	//background bar - layer 0
+	draw_cube(
+		gfc_vector3d(barLeftpos + barWidth * 0.5f, barY, barZ), 
+		gfc_vector3d(barWidth, BAR_SIZE, BAR_SIZE), GFC_COLOR_BLACK);
+
+	//green zone where player should press - layer 1
+	draw_cube(
+		gfc_vector3d(barLeftpos + barWidth * (self->zoneStart + self->zoneWidth * 0.5f), barY, barZ + 0.5f), 
+		gfc_vector3d(barWidth * self->zoneWidth, BAR_SIZE + BAR_Y_INC, BAR_SIZE + BAR_Z_INC), GFC_COLOR_LIGHTGREEN);
+
+	//cube representing player - layer 2
+	draw_cube(
+		gfc_vector3d(barLeftpos + barWidth * position, barY, barZ + 1.0f), 
+		gfc_vector3d(1.0f, BAR_SIZE + (BAR_Y_INC * 2), BAR_SIZE + (BAR_Z_INC * 2)), GFC_COLOR_WHITE);
+}
+
+static void fryer_use(StationData* self, Entity* player, float dt)
+{
+	ItemData* data;
+	float markerPos;
+
+	if (!fryer_is_cooking(self)) return;           
+
+	data = item_get_data(self->slot);
+	markerPos = fryer_marker_position(self);
+	if ((markerPos >= self->zoneStart) && (markerPos <= self->zoneStart + self->zoneWidth))
+	{
+		//hit
+		data->state = ITEM_COOKED;                 
+		self->slot->color = data->cookedColor;
+	}
+	else
+	{
+		//miss
+		data->state = ITEM_BURNT;                  
+		self->slot->color = data->burntColor;
+		slog("item burnt: %s", data->name);
+	}
+	self->sweepTime = 0;
+}
+
 //serving window
-int serving_accept(StationData* self, Entity* item)
+static int serving_accept(StationData* self, Entity* item)
 {
 	return (plate_ingredient_count(item) > 0);
 }
 
-void serving_interact(StationData* self, Entity* player)
+static void serving_interact(StationData* self, Entity* player)
 {
 	Entity* held = player_get_holding(player);
 	Entity* plate;
@@ -632,6 +784,7 @@ static void serving_setup(StationData* st, SJson* def)
 	st->can_accept = serving_accept;
 	st->tick = serving_tick;
 	sj_get_float_value(sj_object_get_value(def, "returnDelay"), &st->returnDelay);
+	st->draw = serving_draw;
 }
 
 static void serving_tick(StationData* self, float dt)
@@ -651,6 +804,12 @@ static void serving_tick(StationData* self, float dt)
 			i++;
 		}
 	}
+}
+
+static void serving_draw(StationData* self)
+{
+	//dirty plates waiting at the window
+	draw_slabs(self->ent, self->dirtyCount, 0, -3, 4, DIRTY_PLATE_COLOR);
 }
 
 //trash

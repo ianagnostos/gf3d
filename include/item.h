@@ -18,6 +18,7 @@ typedef struct
 
 	//cooking
 	int         cookable;
+	int			fryable;
 	GFC_Color   cookedColor;
 	GFC_Color   burntColor;
 

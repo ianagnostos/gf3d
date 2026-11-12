@@ -19,6 +19,12 @@ typedef struct StationData_S
 	float burn;				//seconds since cooked 
 	float burnDuration;     //seconds till burnt
 
+	//fryer
+	float       sweepTime;       //how long its been sweeping
+	float       sweepSpeed;      //bar lengths per second
+	float       zoneStart;       //where the green zone begins (0 to 1 along the bar)
+	float       zoneWidth;		 //how wide the green zone is (0 to 1)
+
 	//crates
 	GFC_TextLine gives;		//what station give player when pickup pressed
 	int stock;				//how many objects left to give out, -1 = unlimited stock
@@ -37,6 +43,7 @@ typedef struct StationData_S
 	void (*interact)(struct StationData_S* self, Entity* player);		//on tap
 	void (*use)(struct StationData_S* self, Entity* player, float dt);	//held
 	void (*tick)(struct StationData_S* self, float dt);					//ran every frame with no player input
+	void (*draw)(struct StationData_S* self);
 }StationData;
 
 //spawns station at given position from stations.def based on name given

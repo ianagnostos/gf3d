@@ -24,7 +24,7 @@ Entity* spawn_item(const char* itemName, GFC_Vector3D position)
 	ItemData* data;
 	GFC_Vector3D scale;
 	const char* str;
-	short int choppable = 0, isPlate = 0, cookable = 0;
+	short int choppable = 0, isPlate = 0, cookable = 0, fryable = 0;
 
 	if (!itemName) return NULL;
 
@@ -72,6 +72,8 @@ Entity* spawn_item(const char* itemName, GFC_Vector3D position)
 		data->choppedColor = sj_object_get_color(itemdef, "choppedColor");
 		sj_get_bool_value(sj_object_get_value(itemdef, "cookable"), &cookable);
 		data->cookable = cookable;
+		sj_get_bool_value(sj_object_get_value(itemdef, "fryable"), &fryable);
+		data->fryable = fryable;
 		data->cookedColor = sj_object_get_color(itemdef, "cookedColor");
 		data->burntColor = sj_object_get_color(itemdef, "burntColor");
 		sj_get_bool_value(sj_object_get_value(itemdef, "plate"), &isPlate);
@@ -181,6 +183,8 @@ static int plate_can_add(Entity* plate, Entity* ingredient)
 	if (plateData->ingredientCount >= MAX_INGREDIENTS) return 0;
 	//food that needs chopping or cooking can't go on when raw
 	if (((ingredientData->choppable) || (ingredientData->cookable)) && (ingredientData->state == ITEM_RAW)) return 0;
+	//fryable food must be cooked
+	if ((ingredientData->fryable) && (ingredientData->state != ITEM_COOKED)) return 0;
 	//burnt food is never allowed
 	if (ingredientData->state == ITEM_BURNT) return 0;
 	return 1;
