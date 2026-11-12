@@ -14,6 +14,7 @@ static Model* ingredientModel = NULL;
 
 //plate
 static int plate_can_add(Entity* plate, Entity* ingredient);
+void plate_clear(Entity* plate);
 
 
 Entity* spawn_item(const char* itemName, GFC_Vector3D position)
@@ -23,7 +24,7 @@ Entity* spawn_item(const char* itemName, GFC_Vector3D position)
 	ItemData* data;
 	GFC_Vector3D scale;
 	const char* str;
-	short int choppable = 0, isPlate = 0;
+	short int choppable = 0, isPlate = 0, cookable = 0;
 
 	if (!itemName) return NULL;
 
@@ -69,9 +70,18 @@ Entity* spawn_item(const char* itemName, GFC_Vector3D position)
 		sj_get_bool_value(sj_object_get_value(itemdef, "choppable"), &choppable);
 		data->choppable = choppable;
 		data->choppedColor = sj_object_get_color(itemdef, "choppedColor");
+		sj_get_bool_value(sj_object_get_value(itemdef, "cookable"), &cookable);
+		data->cookable = cookable;
+		data->cookedColor = sj_object_get_color(itemdef, "cookedColor");
+		data->burntColor = sj_object_get_color(itemdef, "burntColor");
 		sj_get_bool_value(sj_object_get_value(itemdef, "plate"), &isPlate);
 		data->isPlate = isPlate;
-		if (data->isPlate) self->draw = plate_draw;
+		if (data->isPlate)
+		{
+			data->dirtyColor = sj_object_get_color(itemdef, "dirtyColor");
+			data->isDirty = 0;
+			self->draw = plate_draw;
+		}
 	}
 	return self;
 }
@@ -165,9 +175,38 @@ static int plate_can_add(Entity* plate, Entity* ingredient)
 	ItemData* ingredientData = item_get_data(ingredient);
 	//if there isnt a plate, or ingredient return. If plate or ingredient is not plate or ingredient return
 	if ((!plateData) || (!ingredientData) || (!plateData->isPlate) || (ingredientData->isPlate)) return 0;
+	//dirty plate can't hold food
+	if (plateData->isDirty) return 0;
 	//if plate is full return
 	if (plateData->ingredientCount >= MAX_INGREDIENTS) return 0;
-	//if ingredient can be chopped and is not chopped, return
-	if ((ingredientData->choppable) && (ingredientData->state != ITEM_CHOPPED)) return 0;
+	//food that needs chopping or cooking can't go on when raw
+	if (((ingredientData->choppable) || (ingredientData->cookable)) && (ingredientData->state == ITEM_RAW)) return 0;
+	//burnt food is never allowed
+	if (ingredientData->state == ITEM_BURNT) return 0;
 	return 1;
+}
+
+void plate_clear(Entity* plate)
+{
+	ItemData* data = item_get_data(plate);
+	if ((!data) || (!data->isPlate)) return;
+
+	data->ingredientCount = 0;
+	memset(data->ingredientName, 0, sizeof(data->ingredientName));
+	memset(data->ingredientState, 0, sizeof(data->ingredientState));
+	memset(data->ingredientColor, 0, sizeof(data->ingredientColor));
+}
+
+void plate_make_dirty(Entity* plate)
+{
+	ItemData* data = item_get_data(plate);
+	if ((!data) || (!data->isPlate)) return;
+	data->isDirty = 1;
+	plate->color = data->dirtyColor;
+}
+
+int plate_is_dirty(Entity* item)
+{
+	ItemData* data = item_get_data(item);
+	return (data) && (data->isDirty);
 }

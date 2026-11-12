@@ -16,8 +16,15 @@ typedef struct
 	int				choppable;
 	GFC_Color		choppedColor;
 
+	//cooking
+	int         cookable;
+	GFC_Color   cookedColor;
+	GFC_Color   burntColor;
+
 	//plates
 	int isPlate;
+	int isDirty;
+	GFC_Color dirtyColor;
 	int ingredientCount;
 	GFC_TextLine ingredientName[MAX_INGREDIENTS];
 	ItemState ingredientState[MAX_INGREDIENTS];
@@ -48,5 +55,14 @@ int plate_add(Entity* plate, Entity* ingredient);
 
 //draws each ingredient item on plate
 int plate_draw(Entity* self);
+
+//empties contents on plate (sets ingredient count to zero and memset 0 ing arrays)
+void plate_clear(Entity* plate);
+
+//set isDirty to 1
+void plate_make_dirty(Entity* plate);
+
+//returns 1 if dirty plate, 0 if not
+int plate_is_dirty(Entity* item);
 
 #endif
