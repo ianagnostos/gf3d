@@ -102,11 +102,17 @@ int main(int argc,char *argv[])
 
     station_spawn("tomato_crate", gfc_vector3d(-40, -30, 3));
     station_spawn("lettuce_crate", gfc_vector3d(-20, -30, 3));
+    station_spawn("patty_crate", gfc_vector3d(-60, -10, 3));
+    station_spawn("counter", gfc_vector3d(-10, -30, 3));
     station_spawn("counter", gfc_vector3d(0, -30, 3));
+    station_spawn("counter", gfc_vector3d(10, -30, 3));
     station_spawn("counter", gfc_vector3d(20, -30, 3));
     station_spawn("chopping_board", gfc_vector3d(40, -30, 3));
     station_spawn("plate_stack", gfc_vector3d(60, -30, 3));
+    station_spawn("stove", gfc_vector3d(-60, -30, 3));
+    station_spawn("sink", gfc_vector3d(70, 10, 3));
     station_spawn("serving_window", gfc_vector3d(0, 55, 4));
+    station_spawn("trash_can", gfc_vector3d(60, -10, 3));
 
     // main game loop    
     while(!_done)

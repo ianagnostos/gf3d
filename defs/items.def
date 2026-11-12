@@ -25,12 +25,23 @@
             "color": [ 90, 200, 90, 255 ]
         },
         {
+            "name":"patty",
+            "model" : "models/primitives/cube.model",
+            "scale" : [4, 4, 4] ,
+            "cookable" : true,
+            "cookedColor" : [120, 70, 30, 255] ,
+            "burntColor" : [25, 25, 25, 255] ,
+            "bounds" : { "m": [-2, -2, -2] , "s" : [4, 4, 4] },
+            "color" : [230, 150, 150, 255]
+        },
+        {
             "name": "plate",
             "model" : "models/primitives/cube.model",
             "scale" : [6, 6, 1] ,
             "plate" : true,
             "bounds" : { "m": [-3, -3, -0.5] , "s" : [6, 6, 1] },
-            "color" : [235, 235, 235, 255]
+            "color" : [235, 235, 235, 255],
+            "dirtyColor" : [115, 97, 77, 255]
         }
     ]
 }

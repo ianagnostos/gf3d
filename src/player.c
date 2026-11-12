@@ -164,25 +164,37 @@ int player_think(Entity* self)
 		data->target->interact(data->target, self);
 	}
 
-	StationData* station_to_be_used;
-	if ((data->target) && (data->target->use) && (gfc_input_command_down(useCmd[data->index - 1])))
+	StationData* station_to_be_used = NULL;
+	if ((data->target) && (data->target->use))
 	{
-		station_to_be_used = data->target;
-
-		if ((data->working_at) && (data->working_at != station_to_be_used))
+		const char* cmd = useCmd[data->index - 1];
+		if (data->target->buttonMashFlag)				//if player needs to mash, input is only pressed
 		{
-			if (data->working_at->user == self) 
-				data->working_at->user = NULL;
-			data->working_at = NULL;
+			if (gfc_input_command_pressed(cmd))
+				station_to_be_used = data->target;
 		}
-
-		if ((station_to_be_used) && ((!station_to_be_used->user) || (station_to_be_used->user == self)))
+		else
 		{
-			station_to_be_used->user = self;
-			data->working_at = station_to_be_used;
-			station_to_be_used->use(station_to_be_used, self, dt);
+			if (gfc_input_command_down(cmd))			//if player needs to hold, input is held
+				station_to_be_used = data->target;
 		}
 	}
+
+
+	if ((data->working_at) && (data->working_at != station_to_be_used))
+	{
+		if (data->working_at->user == self) 
+			data->working_at->user = NULL;
+		data->working_at = NULL;
+	}
+
+	if ((station_to_be_used) && ((!station_to_be_used->user) || (station_to_be_used->user == self)))
+	{
+		station_to_be_used->user = self;
+		data->working_at = station_to_be_used;
+		station_to_be_used->use(station_to_be_used, self, dt);
+	}
+	
 
 	if (data->holding)
 	{

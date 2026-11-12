@@ -3,6 +3,8 @@
 
 #include "gf3d_entity.h"
 
+#define MAX_PLATES 4
+
 typedef struct StationData_S
 {
 	Entity* ent;			//what entity this data belongs to
@@ -13,15 +15,35 @@ typedef struct StationData_S
 	float progress;			//work done so far (time)
 	float duration;			//amount of work that needs to be done (time)
 
-	GFC_TextLine gives;			//what station give player when pickup pressed
+	//stove
+	float burn;				//seconds since cooked 
+	float burnDuration;     //seconds till burnt
+
+	//crates
+	GFC_TextLine gives;		//what station give player when pickup pressed
+	int stock;				//how many objects left to give out, -1 = unlimited stock
+
+	//sink
+	int cleanCount;			//number of clean plates
+	int buttonMashFlag;		//1 = button mash to move progress bar, 0 = waiting
+
+	//serving window
+	int         dirtyCount;							//number of dirty plates
+	float       returnDelay;						//seconds before a served plate comes back
+	float       returningPlateTimers[MAX_PLATES];   //countdowns for plates on their way back
+	int         returningPlateCount;
 
 	int (*can_accept)(struct StationData_S* self, Entity *item);
 	void (*interact)(struct StationData_S* self, Entity* player);		//on tap
 	void (*use)(struct StationData_S* self, Entity* player, float dt);	//held
+	void (*tick)(struct StationData_S* self, float dt);					//ran every frame with no player input
 }StationData;
 
 //spawns station at given position from stations.def based on name given
 Entity* station_spawn(const char* name, GFC_Vector3D position);
+
+//checks if station has a tick function and runs if it does
+int station_update(Entity* self);
 
 //free additonal data from station
 void station_free(Entity* ent);
