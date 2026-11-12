@@ -3,12 +3,65 @@
 	[
 		{
 			"name":"salad",
-			"points" : 20.0,
+			"points" : 25.0,
 			"patience" : 60.0,
 			"ingredients" :
 			[
 				{ "item":"lettuce", "state" : "chopped" },
 				{ "item":"tomato",  "state" : "chopped" }
+			]
+		},
+		{
+			"name":"fries",
+			"points" : 30.0,
+			"patience" : 50.0,
+			"ingredients" :
+			[
+				{ "item":"potato", "state" : "cooked" }
+			]
+		},
+		{
+			"name":"burger",
+			"points" : 40.0,
+			"patience" : 90.0,
+			"ingredients" :
+			[
+				{ "item":"patty",   "state" : "cooked" },
+				{ "item":"bun",     "state" : "raw" },
+				{ "item":"lettuce", "state" : "chopped" },
+				{ "item":"tomato", "state" : "chopped" }
+			]
+		},
+		{
+			"name":"burger no tomato",
+			"points" : 35.0,
+			"patience" : 85.0,
+			"ingredients" :
+			[
+				{ "item":"patty",   "state" : "cooked" },
+				{ "item":"bun",     "state" : "raw" },
+				{ "item":"lettuce", "state" : "chopped" }
+			]
+		},
+		{
+			"name":"burger no lettuce",
+			"points" : 35.0,
+			"patience" : 85.0,
+			"ingredients" :
+			[
+				{ "item":"patty",   "state" : "cooked" },
+				{ "item":"bun",     "state" : "raw" },
+				{ "item":"tomato", "state" : "chopped" }
+			]
+		},
+		{
+			"name":"plain burger",
+			"points" : 30.0,
+			"patience" : 80.0,
+			"ingredients" :
+			[
+				{ "item":"patty",   "state" : "cooked" },
+				{ "item":"bun",     "state" : "raw" }
 			]
 		}
 	]
