@@ -1,14 +1,14 @@
 {
 	"stations":
 	[
-	{
+		{
 		"name":"counter",
 			"mode" : "counter",
 			"model" : "models/primitives/cube.model",
 			"scale" : [10, 10, 6] ,
 			"bounds" : {"m": [-5, -5, -3] , "s" : [10, 10, 6] },
 			"color" : [190, 160, 110, 255]
-	},
+		},
 		{
 			"name":"tomato_crate",
 			"mode" : "crate",
