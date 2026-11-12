@@ -19,8 +19,8 @@ extern float dt;
 
 static Entity* players[2] = { 0 };
 
-static const char* pickupCmd[2] = { "item_pickup", "p2_pickup" };
-static const char* useCmd[2] = { "item_use",    "p2_use" };
+static const char* pickupCmd[2] = { "p1_pickup", "p2_pickup" };
+static const char* useCmd[2] = { "p1_use",    "p2_use" };
 
 typedef struct
 {
@@ -128,10 +128,10 @@ int player_think(Entity* self)
 
 	if (data->index == 1)
 	{
-		if (gfc_input_command_down("item_up")) move.y = -1;
-		if (gfc_input_command_down("item_down")) move.y = 1;
-		if (gfc_input_command_down("item_left")) move.x = 1;
-		if (gfc_input_command_down("item_right")) move.x = -1;
+		if (gfc_input_command_down("p1_up")) move.y = -1;
+		if (gfc_input_command_down("p1_down")) move.y = 1;
+		if (gfc_input_command_down("p1_left")) move.x = 1;
+		if (gfc_input_command_down("p1_right")) move.x = -1;
 	}
 
 	if (data->index == 2)
@@ -160,7 +160,6 @@ int player_think(Entity* self)
 
 	if ((data->target) && (gfc_input_command_pressed(pickupCmd[data->index - 1])))
 	{
-		slog("picked up object");
 		data->target->interact(data->target, self);
 	}
 
